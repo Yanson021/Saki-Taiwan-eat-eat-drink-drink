@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台湾美学・食探訪 VIBE MAP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fdfbf7;
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --text-main: #2d3748;
+            --tp-color: #0ea5e9;
+            --tc-color: #10b981;
+            --kh-color: #f43f5e;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 0% 0%, rgba(14, 165, 233, 0.04) 0, transparent 40%),
+                              radial-gradient(circle at 100% 100%, rgba(244, 63, 94, 0.04) 0, transparent 40%);
+            color: var(--text-main);
+            font-family: 'Noto Sans JP', 'Noto Sans TC', sans-serif;
+            scroll-behavior: smooth;
+        }
+        
+        .glass {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 28px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
+        }
+
+        .border-tp { border-left: 6px solid var(--tp-color); }
+        .border-tc { border-left: 6px solid var(--tc-color); }
+        .border-kh { border-left: 6px solid var(--kh-color); }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--tp-color), var(--kh-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid transparent;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            background: #ffffff;
+            border-color: rgba(0, 0, 0, 0.03);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+        }
+
+        #poi-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            animation: modalIn 0.3s ease-out;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, #f8fafc 25%, #f1f5f9 50%, #f8fafc 75%);
+            background-size: 200% 100%;
+            animation: shimmerEffect 2s infinite;
+        }
+
+        @keyframes shimmerEffect {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .loading-dots:after {
+            content: '.';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80%, 100% { content: ''; }
+        }
+
+        /* 隱藏捲軸但保留捲動功能 */
+        .modal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .modal-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .modal-content::-webkit-scrollbar-thumb {
+            background-color: #e2e8f0;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-12 selection:bg-sky-50">
+
+    <header class="max-w-6xl mx-auto text-center mb-16 mt-8">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 tracking-tight text-slate-800">
+            台湾美学・食探訪 <span class="gradient-text">VIBE MAP</span>
+        </h1>
+        <p class="text-slate-400 tracking-[0.4em] uppercase text-[10px] md:text-xs font-bold">
+            Architecture • Taste • Midnight • Transit
+        </p>
+    </header>
+
+    <main class="max-w-6xl mx-auto space-y-24">
+
+        <!-- 台北 Taipei -->
+        <section id="taipei">
+            <div class="flex items-center gap-4 mb-8">
+                <h2 class="text-2xl font-bold text-slate-800 flex flex-col md:flex-row md:items-baseline gap-2">
+                    <span>📍 台北 Taipei</span>
+                    <span class="text-sm font-normal text-slate-400">台北 / タイペイ</span>
+                </h2>
+                <div class="h-[1px] flex-grow bg-slate-200"></div>
+                <span class="text-sky-500 text-[10px] font-bold tracking-widest uppercase hidden md:inline">Classic & Trendy</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 建築與博物館 -->
+                <div class="glass p-6 border-tp">
+                    <h3 class="text-sky-600 font-bold mb-1 text-xs uppercase tracking-widest">🏛️ 建築與博物館</h3>
+                    <p class="text-[10px] text-slate-400 mb-4 tracking-tighter">建築と美術館 / Architecture</p>
+                    <div class="space-y-2">
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('台北市立美術館', 'museum')">
+                            <span>北美館 TFAM</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=台北市立美術館', '_blank')" class="text-slate-300 hover:text-sky-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('國立臺灣博物館 鐵道部園區', 'architecture')">
+                            <span>鐵道部園區 (北門)</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=鐵道部園區', '_blank')" class="text-slate-300 hover:text-sky-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('華山1914文化創意產業園區', 'creative')">
+                            <span>華山 1914</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=華山1914', '_blank')" class="text-slate-300 hover:text-sky-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('不只是圖書館', 'library')">
+                            <span>不只是圖書館</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=不只是圖書館', '_blank')" class="text-slate-300 hover:text-sky-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass p-6 border-tp">
+                    <h3 class="text-sky-600 font-bold mb-1 text-xs uppercase tracking-widest">☕ 文青散策與甜點</h3>
+                    <p class="text-[10px] text-slate-400 mb-4 tracking-tighter">文青スポットとスイーツ / Lifestyle</p>
+                    <div class="space-y-2">
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('浮光書店', 'bookstore')">
+                            <span>浮光書店 (赤峰街)</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=浮光書店', '_blank')" class="text-slate-300 hover:text-sky-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('郭怡美書店', 'bookstore')">
+                            <span>郭怡美書店 (大稻埕)</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=郭怡美書店', '_blank')" class="text-slate-300 hover:text-sky-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('興波咖啡', 'coffee')">
+                            <span>興波咖啡 Simple Kaffa</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=興波咖啡', '_blank')" class="text-slate-300 hover:text-sky-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('昭和浪漫冰室', 'icecream')">
+                            <span>昭和浪漫冰室</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=昭和浪漫冰室', '_blank')" class="text-slate-300 hover:text-sky-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('榕錦時光生活園區', 'japanesegarden')">
+                            <span>榕錦時光園區</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=榕錦時光生活園區', '_blank')" class="text-slate-300 hover:text-sky-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass p-6 border-tp">
+                    <h3 class="text-sky-600 font-bold mb-1 text-xs uppercase tracking-widest">🍸 酒吧與深夜美食</h3>
+                    <p class="text-[10px] text-slate-400 mb-4 tracking-tighter">バーと深夜のグルメ / Nightlife</p>
+                    <div class="space-y-2">
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('Bar 忠 Chu', 'bar')">
+                            <span>Bar 忠 (Bar Chu)</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=Bar忠', '_blank')" class="text-slate-300 hover:text-sky-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('發琴吧 Ginspiration', 'cocktail')">
+                            <span>發琴吧 Ginspiration</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=發琴吧', '_blank')" class="text-slate-300 hover:text-sky-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('Draft Land', 'bar')">
+                            <span>Draft Land</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=Draft+Land', '_blank')" class="text-slate-300 hover:text-sky-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('詹記麻辣火鍋', 'hotpot')">
+                            <span>詹記麻辣火鍋</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=詹記麻辣火鍋', '_blank')" class="text-slate-300 hover:text-sky-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 台中 Taichung -->
+        <section id="taichung">
+            <div class="flex items-center gap-4 mb-8">
+                <h2 class="text-2xl font-bold text-slate-800 flex flex-col md:flex-row md:items-baseline gap-2">
+                    <span>📍 台中 Taichung</span>
+                    <span class="text-sm font-normal text-slate-400">台中 / タイチュン</span>
+                </h2>
+                <div class="h-[1px] flex-grow bg-slate-200"></div>
+                <span class="text-emerald-500 text-[10px] font-bold tracking-widest uppercase hidden md:inline">Creative & Brunch</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass p-6 border-tc">
+                    <h3 class="text-emerald-600 font-bold mb-1 text-xs uppercase tracking-widest">🏛️ 建築與博物館</h3>
+                    <p class="text-[10px] text-slate-400 mb-4 tracking-tighter">建築と美術館 / Art</p>
+                    <div class="space-y-2">
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('台中國家歌劇院', 'operahouse')">
+                            <span>台中國家歌劇院</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=台中國家歌劇院', '_blank')" class="text-slate-300 hover:text-emerald-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('國立臺灣美術館', 'museum')">
+                            <span>國立臺灣美術館</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=國立臺灣美術館', '_blank')" class="text-slate-300 hover:text-emerald-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('亞洲大學現代美術館', 'architecture')">
+                            <span>亞大現代美術館</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=亞洲大學現代美術館', '_blank')" class="text-slate-300 hover:text-emerald-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass p-6 border-tc">
+                    <h3 class="text-emerald-600 font-bold mb-1 text-xs uppercase tracking-widest">☕ 散策與早午餐</h3>
+                    <p class="text-[10px] text-slate-400 mb-4 tracking-tighter">散策とブランチ / Foodie</p>
+                    <div class="space-y-2">
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('審計新村', 'market')">
+                            <span>審計新村美食聚落</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=審計新村', '_blank')" class="text-slate-300 hover:text-emerald-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('宮原眼科冰淇淋', 'dessert')">
+                            <span>宮原眼科冰淇淋</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=宮原眼科', '_blank')" class="text-slate-300 hover:text-emerald-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('目覺咖啡', 'brunch')">
+                            <span>目覺咖啡 mezashite</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=目覺咖啡', '_blank')" class="text-slate-300 hover:text-emerald-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass p-6 border-tc">
+                    <h3 class="text-emerald-600 font-bold mb-1 text-xs uppercase tracking-widest">🍷 微醺與餐酒</h3>
+                    <p class="text-[10px] text-slate-400 mb-4 tracking-tighter">お酒とビストロ / Dining</p>
+                    <div class="space-y-2">
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('Vender Bar', 'cocktail')">
+                            <span>Vender Bar</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=Vender+Bar', '_blank')" class="text-slate-300 hover:text-emerald-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('茶六燒肉堂', 'bbq')">
+                            <span>茶六燒肉堂</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=茶六燒肉堂', '_blank')" class="text-slate-300 hover:text-emerald-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 高雄 Kaohsiung -->
+        <section id="kaohsiung">
+            <div class="flex items-center gap-4 mb-8">
+                <h2 class="text-2xl font-bold text-slate-800 flex flex-col md:flex-row md:items-baseline gap-2">
+                    <span>📍 高雄 Kaohsiung</span>
+                    <span class="text-sm font-normal text-slate-400">高雄 / カオシュン</span>
+                </h2>
+                <div class="h-[1px] flex-grow bg-slate-200"></div>
+                <span class="text-rose-500 text-[10px] font-bold tracking-widest uppercase hidden md:inline">Harbor City</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass p-6 border-kh">
+                    <h3 class="text-rose-600 font-bold mb-1 text-xs uppercase tracking-widest">🏛️ 建築與博物館</h3>
+                    <p class="text-[10px] text-slate-400 mb-4 tracking-tighter">建築と美術館 / Harbor</p>
+                    <div class="space-y-2">
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('高雄流行音樂中心', 'harbor')">
+                            <span>高流中心 (音浪塔)</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=高雄流行音樂中心', '_blank')" class="text-slate-300 hover:text-rose-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('內惟藝術中心', 'art')">
+                            <span>內惟藝術中心</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=內惟藝術中心', '_blank')" class="text-slate-300 hover:text-rose-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('駁二大義倉庫群', 'warehouse')">
+                            <span>駁二大義倉庫群</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=駁二大義倉庫', '_blank')" class="text-slate-300 hover:text-rose-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass p-6 border-kh">
+                    <h3 class="text-rose-600 font-bold mb-1 text-xs uppercase tracking-widest">🍮 散策與老字號</h3>
+                    <p class="text-[10px] text-slate-400 mb-4 tracking-tighter">散策とレトロな味 / Local</p>
+                    <div class="space-y-2">
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('銀座聚場', 'retro')">
+                            <span>銀座聚場 (昭和風)</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=銀座聚場', '_blank')" class="text-slate-300 hover:text-rose-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('鴨肉珍', 'streetfood')">
+                            <span>鴨肉珍 (鴨肉飯)</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=鴨肉珍', '_blank')" class="text-slate-300 hover:text-rose-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('海之冰', 'shavedice')">
+                            <span>渡船頭海之冰</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=海之冰', '_blank')" class="text-slate-300 hover:text-rose-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass p-6 border-kh">
+                    <h3 class="text-rose-600 font-bold mb-1 text-xs uppercase tracking-widest">🍸 港氛圍與微醺</h3>
+                    <p class="text-[10px] text-slate-400 mb-4 tracking-tighter">お酒とビストロ / Vibes</p>
+                    <div class="space-y-2">
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('入座 In-Sway', 'bar')">
+                            <span>入座 In-Sway</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=入座', '_blank')" class="text-slate-300 hover:text-rose-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                        <div class="card p-3 rounded-xl text-sm text-slate-600 flex justify-between items-center" onclick="searchPOI('肆意酒館', 'bistro')">
+                            <span>肆意酒館 G.S.O</span>
+                            <button onclick="event.stopPropagation(); window.open('https://www.google.com/maps/dir/?api=1&destination=肆意酒館', '_blank')" class="text-slate-300 hover:text-rose-500 transition-colors p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 交通樞紐 -->
+        <footer class="glass p-10 border border-white/50">
+            <h4 class="font-bold mb-8 text-slate-700 uppercase tracking-widest text-center text-xs">交通ガイド / Transit Hub</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center items-center">
+                <div class="space-y-1">
+                    <div class="text-sky-500 font-bold text-lg">台北 ➔ 台中</div>
+                    <div class="text-slate-400 text-[10px] font-mono">高鉄 (HSR): 60 MINS</div>
+                </div>
+                <div class="space-y-1">
+                    <div class="text-emerald-500 font-bold text-lg">台中 ➔ 高雄</div>
+                    <div class="text-slate-400 text-[10px] font-mono">高鉄 (HSR): 45 MINS</div>
+                </div>
+                <div class="bg-rose-50/50 p-4 rounded-2xl">
+                    <div class="text-rose-500 font-bold text-xs uppercase tracking-tighter mb-1 text-center">LRT Recommendation</div>
+                    <div class="text-slate-500 text-sm">高雄移動首選：輕軌環港線</div>
+                    <div class="text-slate-400 text-[9px] mt-1">おすすめ：ライトレール環状線</div>
+                </div>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- 詳情彈窗 -->
+    <div id="poi-modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div id="modal-image-container" class="w-full h-64 shimmer relative flex items-center justify-center bg-slate-100 overflow-hidden">
+                <img id="modal-image" src="" alt="" class="w-full h-full object-cover hidden">
+                <div id="image-loader" class="text-slate-400 text-[10px] tracking-widest uppercase loading-dots">読み込み中</div>
+            </div>
+            <div class="p-8">
+                <div class="flex justify-between items-start mb-6">
+                    <h2 id="modal-title" class="text-xl font-bold text-slate-800"></h2>
+                    <button onclick="closeModal()" class="text-slate-300 hover:text-slate-500 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <div id="modal-description" class="text-slate-600 text-sm leading-relaxed min-h-[100px]"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center py-20 text-slate-300 text-[9px] tracking-[0.4em] uppercase font-medium">
+        Curated for Aesthetic Explorers • 2026 Edition • Static Guide
+    </div>
+
+    <script>
+        // 靜態資料庫：包含所有景點的中日雙語文青介紹
+        const poiDatabase = {
+            "台北市立美術館": "台北市立美術館是台灣首座現代美術館，以其純白色的幾何建築與豐富的當代藝術展覽聞名。漫步其中，能充分感受藝術與空間交織的獨特氛圍。<br><br>台北市立美術館は台湾初の現代美術館で、真っ白な幾何学的な建築と豊富な現代アートの展示で知られています。芸術と空間が織りなす独特の雰囲気を存分に味わえます。",
+            "國立臺灣博物館 鐵道部園區": "鐵道部園區保留了百年的紅磚建築與優雅的木造結構，展現了台灣鐵道歷史的深厚底蘊。這裡是攝影愛好者與歷史迷必訪的復古地標。<br><br>鉄道部園区は、百年前のレンガ造りの建築とエレガントな木造構造を残しており、台湾鉄道の歴史の深さを示しています。写真愛好家や歴史ファン必見のレトロなランドマークです。",
+            "華山1914文化創意產業園區": "昔日酒廠重生成為台北最具活力的文創園區，斑駁的廠房與現代設計交錯，匯聚了獨立書店、咖啡館與各式展演，充滿文青氣息。<br><br>かつての酒工場が台北で最も活気ある文化創造パークに生まれ変わりました。古びた工場と現代のデザインが交差する、若者文化の息吹に満ちた場所です。",
+            "不只是圖書館": "隱身於松菸澡堂內的獨特圖書館，書籍與復古磁磚浴池相映成趣。提供一個讓人靜下心來閱讀、沉浸於設計靈感中的私密空間。<br><br>松山文創園区の古い浴場に隠れたユニークな図書館。本とレトロなタイルの浴槽が美しいコントラストをなし、デザインのインスピレーションに浸れる空間です。",
+            "浮光書店": "藏身於赤峰街老宅二樓的獨立書店，陽光灑落木質書架，伴隨著咖啡香。這裡是遠離城市喧囂，享受寧靜閱讀時光的完美角落。<br><br>赤峰街の古い建物の2階にひっそりと佇む独立系書店。木製の書棚に陽光が降り注ぎ、コーヒーの香りが漂う、静かな読書タイムを楽しむための完璧な空間です。",
+            "郭怡美書店": "座落於大稻埕的百年洋樓內，郭怡美書店將歷史建築與豐富藏書完美結合。在挑高的空間裡，彷彿能穿越時空，感受老台北的絕代風華。<br><br>大稲埕の百年の歴史を持つ洋館に位置し、歴史的建築と豊富な蔵書が見事に融合しています。吹き抜けの空間では、古い台北の素晴らしい風情を感じることができます。",
+            "興波咖啡": "曾獲世界冠軍頭銜的興波咖啡，保留了老屋的紅磚與斑駁牆面，提供極致的咖啡體驗。來這裡品嚐一杯冠軍手沖，感受台北的咖啡靈魂。<br><br>世界チャンピオンに輝いたSimple Kaffa。古い建物のレンガやはがれた壁を残し、究極のコーヒー体験を提供します。台北のコーヒーの魂を感じてください。",
+            "昭和浪漫冰室": "踏入這間充滿大正浪漫與昭和懷舊風情的冰室，華麗的古董燈飾與甜蜜的復古冰品，讓人立刻墜入舊時光的迷人幻夢中。<br><br>大正ロマンと昭和のノスタルジーに満ちた氷水店。華やかなアンティークランプと甘いレトロなスイーツが、魅力的な昔の夢へと誘います。",
+            "榕錦時光生活園區": "由舊日式宿舍群改造而成，木造老屋與綠樹交織出濃厚的京都風情。漫步於此，能品味各式日式甜點，享受悠閒的午後時光。<br><br>古い日本式宿舎群を改装したパーク。木造の古い建物と緑の木々が濃厚な京都の風情を織りなしています。のんびりとした午後を楽しむのに最適です。",
+            "Bar 忠 Chu": "隱蔽而精緻的日式酒吧，調酒師以匠人精神專注於每一杯飲品。無酒單的客製化服務，為台北的夜晚帶來一抹靜謐與醇厚的微醺。<br><br>隠れ家のような洗練された本格的なバー。バーテンダーが職人魂で一杯一杯丁寧に作ります。メニューのないカスタマイズサービスで、台北の夜に静寂と美酒をもたらします。",
+            "發琴吧 Ginspiration": "位於大稻埕的琴酒專門吧，擁有豐富的琴酒收藏與創意調酒。在復古與現代交融的空間裡，探索琴酒的無限可能與迷人風味。<br><br>大稲埕にあるジン専門のバー。豊富なジンのコレクションと創造的なカクテルを誇ります。レトロと現代が融合する空間で、ジンの魅力を探求してください。",
+            "Draft Land": "亞洲首創的汲飲式雞尾酒吧，以極簡的工業風格與輕鬆的立飲文化，打破傳統酒吧的界線，讓高質感的調酒變得觸手可及。<br><br>アジア初のタップ式カクテルバー。ミニマルなインダストリアルスタイルと気軽な立ち飲み文化で、高品質なカクテルを身近なものにしています。",
+            "詹記麻辣火鍋": "台北最具代表性的台式麻辣鍋之一，獨特的復古台味裝潢與滑嫩入味的鴨血，是深夜裡溫暖胃袋與靈魂的最佳療癒美食。<br><br>台北を代表する台湾式スパイシー火鍋。ユニークでレトロな台湾風の装飾と、味が染み込んだ滑らかな鴨血が、深夜の胃袋と魂を癒します。",
+            "台中國家歌劇院": "由伊東豊雄設計的曲牆建築，宛如充滿生命力的洞穴。這裡不僅是表演藝術的殿堂，其建築本身就是一件令人嘆為觀止的巨大藝術品。<br><br>伊東豊雄が設計した曲面壁の建築で、生命力に満ちた洞窟のようです。舞台芸術の殿堂であるだけでなく、建築自体が息をのむような巨大な芸術作品です。",
+            "國立臺灣美術館": "腹地廣大的國美館，擁有豐富的台灣藝術典藏。寬敞的展廳與周邊的戶外雕塑公園，是感受台中藝術氣息與散步放鬆的絕佳去處。<br><br>広大な敷地を持つ国立台湾美術館は、台湾アートの豊富なコレクションを誇ります。広々とした展示室と屋外の彫刻公園は、台中の芸術的な雰囲気を感じるのに最適な場所です。",
+            "亞洲大學現代美術館": "安藤忠雄在台灣的首座建築作品，以三個正三角形交錯堆疊而成。清水模的純粹與光影的變化，營造出靜謐而深邃的藝術空間。<br><br>安藤忠雄の台湾初の建築作品。3つの正三角形が交差して積み重ねられています。コンクリート打ちっ放しの純粋さと光と影の変化が、静謐な空間を作り出しています。",
+            "審計新村": "從老舊的省府員工宿舍蛻變為充滿活力的文創聚落。這裡聚集了各式手作選物、甜點咖啡，洋溢著台中特有的悠閒與創意氛圍。<br><br>古い公務員宿舎から活気ある文化創造の集落へと変貌しました。様々な手作りの品々やスイーツが集まり、台中特有ののんびりとしたクリエイティブな雰囲気に溢れています。",
+            "宮原眼科冰淇淋": "日治時期的眼科診所華麗變身為宛如魔法學校的甜點店。以種類繁多的冰淇淋口味與精緻的包裝聞名，是視覺與味覺的雙重饗宴。<br><br>日本統治時代の眼科医院が、まるで魔法学校のようなスイーツ店に華麗に変身。豊富な種類のアイスクリームと精巧なパッケージで知られる、視覚と味覚の饗宴です。",
+            "目覺咖啡": "以極簡的木質裝潢與大片落地窗，打造出通透而舒適的早午餐空間。在這裡享用一份充滿質感的朝食，為美好的一天揭開序幕。<br><br>ミニマルな木の装飾と大きな窓が、明るく快適なブランチ空間を作り出しています。ここで上質な朝食を楽しみ、素晴らしい一日の幕を開けましょう。",
+            "Vender Bar": "隱身於販賣機門後的秘密酒吧，充滿驚喜的機關與極具創意的特色調酒，為台中的夜生活注入了一股神秘又迷幻的活力。<br><br>自動販売機のドアの後ろに隠れた秘密のバー。驚きに満ちた仕掛けとクリエイティブな特製カクテルが、台中のナイトライフに神秘的な活力を吹き込みます。",
+            "茶六燒肉堂": "台中超人氣的燒肉品牌，以大氣的東方禪意裝潢與高品質的肉品著稱。在寬敞的空間裡大口吃肉，絕對是令人大呼過癮的深夜盛宴。<br><br>台中で大人気の焼肉ブランド。壮大な東洋の禅の装飾と高品質のお肉で知られています。広々とした空間でのおいしいお肉は、最高の深夜の宴です。",
+            "高雄流行音樂中心": "坐落於愛河灣的幾何白色建築，外觀宛如海浪與珊瑚。夜晚點燈後更是璀璨奪目，是高雄港灣最具未來感與音樂活力的流行地標。<br><br>愛河湾に位置する幾何学的な白い建築で、外観は波やサンゴのようです。夜のライトアップはさらにまばゆく、高雄の港で最も未来的な音楽のランドマークです。",
+            "內惟藝術中心": "隱身於自然林蔭中的純白建築，打破了傳統美術館的界線，融合了展覽、影廳與輕食，打造出一個親切而充滿生活美學的藝術空間。<br><br>木の影に隠れた真っ白な建築。伝統的な美術館の境界を打ち破り、展示、映画館、カフェを融合させ、親しみやすく生活の美学に満ちたアート空間を作り出しました。",
+            "駁二大義倉庫群": "工業風的舊倉庫群如今開滿了文創小店、獨立藝廊與個性餐廳。紅磚牆與海風交織，展現出高雄獨有的粗獷與文藝並存的港都魅力。<br><br>インダストリアルな古い倉庫群には、現在、文化創造のショップや個性的なレストランが立ち並んでいます。赤レンガと潮風が交差する、高雄特有の港町の魅力です。",
+            "銀座聚場": "隱身在鹽埕區歷史悠久的「銀座商場」巷弄內，這間充滿昭和懷舊氛圍的咖啡館保留了老屋的靈魂，讓人細細品味老高雄的緩慢時光。<br><br>塩埕区の歴史ある「銀座商場」の路地に隠れた、昭和のレトロな雰囲気に満ちたカフェ。古い家の魂を残し、昔の高雄のゆっくりとした時間を味わうことができます。",
+            "鴨肉珍": "高雄鹽埕區傳承超過一甲子的老字號平民美食。一碗香氣四溢的鴨肉飯配上濃郁的湯頭，展現了最道地、最令人難以忘懷的南部人情味。<br><br>高雄の塩埕区で60年以上受け継がれてきた老舗の庶民的なグルメ。香り高い鴨肉ご飯と濃厚なスープが、最も本格的で忘れられない南部の温かさを示しています。",
+            "海之冰": "鼓山渡船頭旁的冰品傳奇，以巨無霸尺寸的大碗公冰聞名。層層堆疊的新鮮水果與刨冰，是來到炎熱高雄必嚐的消暑聖品。<br><br>鼓山のフェリーターミナル横にあるかき氷の伝説。巨大なボウルに入ったかき氷で知られています。新鮮なフルーツがたっぷり乗った、暑い高雄で必食の冷たいスイーツです。",
+            "入座 In-Sway": "隱密且充滿質感的酒吧，空間設計帶有獨特的靜謐氛圍。調酒師巧妙融合在地食材與創新技法，為高雄的微醺之夜帶來細膩的味覺層次。<br><br>隠れ家的で質感のあるバー。空間デザインは独特の静寂な雰囲気を持っています。地元の食材と革新的な技術を融合させたカクテルが、高雄の夜に繊細な味覚をもたらします。",
+            "肆意酒館": "結合了復古老派與現代創意的餐酒館。在這裡可以享受慵懶的音樂、精緻的下酒菜與風味獨具的調酒，是下班後放鬆靈魂的絕佳避風港。<br><br>レトロと現代の創造性を組み合わせたビストロ。リラックスした音楽、絶品のおつまみ、ユニークなカクテルを楽しめる、仕事後のリフレッシュに最適な場所です。"
+        };
+
+        function closeModal() {
+            document.getElementById('poi-modal').style.display = 'none';
+        }
+
+        // 靜態讀取功能，移除所有 API 呼叫
+        function searchPOI(name, imgKeyword) {
+            const modal = document.getElementById('poi-modal');
+            const title = document.getElementById('modal-title');
+            const desc = document.getElementById('modal-description');
+            const img = document.getElementById('modal-image');
+            const loader = document.getElementById('image-loader');
+
+            // 顯示彈窗與重置狀態
+            modal.style.display = 'flex';
+            title.innerText = name;
+            desc.innerHTML = `<div class="space-y-2"><div class="h-4 w-full shimmer rounded"></div><div class="h-4 w-5/6 shimmer rounded"></div></div>`;
+            img.src = "";
+            img.classList.add('hidden');
+            loader.classList.remove('hidden');
+            loader.innerText = "読み込み中...";
+
+            // 使用 setTimeout 模擬微小的讀取延遲，讓過場動畫更平滑
+            setTimeout(() => {
+                // 1. 載入靜態文字
+                const staticDesc = poiDatabase[name] || "目前尚無此景點介紹。<br><br>現在、このスポットの紹介はありません。";
+                desc.innerHTML = staticDesc;
+
+                // 2. 載入靜態圖庫圖片 (使用 loremflickr 搭配自訂關鍵字)
+                const keyword = encodeURIComponent(imgKeyword || "taiwan");
+                img.src = `https://loremflickr.com/800/600/taiwan,${keyword},view/all`;
+                
+                // 確保圖片載入完成才顯示
+                img.onload = () => {
+                    img.classList.remove('hidden');
+                    loader.classList.add('hidden');
+                };
+            }, 300); // 300毫秒的微小延遲
+        }
+    </script>
+</body>
+</html>
